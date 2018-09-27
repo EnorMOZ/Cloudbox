@@ -3,7 +3,7 @@
 # Author(s):     L3uddz, Desimaniac                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
-#         Part of the Cloudbox project: https://cloudbox.rocks          #
+#         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
@@ -20,10 +20,6 @@
     - /mnt/local/Media/Music
     - /mnt/local/Media/TV
     - /opt
-
-- name: (Re)Set permissions
-  import_tasks: "permissions.yml"
-  tags: permissions-fix
 
 - name: Add multiverse repositories
   apt_repository:

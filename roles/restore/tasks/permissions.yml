@@ -1,6 +1,5 @@
 #########################################################################
-# Title:         Cloudbox: UnionFS Mount Service                        #
-# Path:          /etc/systemd/system/unionfs.service                    #
+# Title:         Cloudbox: Restore - Permissions                        #
 # Author(s):     Desimaniac, L3uddz                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
@@ -8,19 +7,13 @@
 #########################################################################
 #                   GNU General Public License v3.0                     #
 #########################################################################
+---
+- name: Set '/opt' ownership recursively
+  shell: "chown -R {{user}}:{{user}} /opt"
+  args:
+    warn: no
 
-[Unit]
-Description=UnionFS Mount
-After=network-online.target plexdrive.service
-
-[Service]
-Type=forking
-GuessMainPID=no
-User={{user}}
-Group={{user}}
-ExecStartPre=/bin/sleep 30
-ExecStart=/usr/bin/unionfs-fuse -o cow,allow_other,nonempty /mnt/feeder=RW:/mnt/plexdrive=RO /mnt/unionfs
-ExecStop=/bin/fusermount -uz /mnt/unionfs
-
-[Install]
-WantedBy=default.target
+- name: Set '/opt' permissions recursively
+  shell: "chmod -R ugo+X /opt"
+  args:
+    warn: no
