@@ -111,12 +111,12 @@
     file: "path=/opt/systemd-backup state=directory mode=0775 owner={{user}} group={{user}} recurse=yes"
     ignore_errors: yes
 
-  - name: "Gather list of running Docker containers"
+  - name: "Gather list of running Docker containers."
     shell: "docker ps --format '{{ '{{' }} .Names{{ '}}' }}' --filter label=com.github.cloudbox.cloudbox_managed=true | xargs echo -n"
     register: cloudbox_managed_containers
     ignore_errors: yes
 
-  - name: "Stop all running Docker containers"
+  - name: "Stop all running Docker containers."
     shell: "docker stop {{cloudbox_managed_containers.stdout}}"
     ignore_errors: yes
     when: not (cloudbox_managed_containers.stdout | trim == '')
@@ -130,22 +130,6 @@
 
   - name: Populate Service Facts
     service_facts:
-
-  - name: Check if 'plexdrive.service' exists
-    stat:
-      path: "/etc/systemd/system/plexdrive.service"
-    register: plexdrive_service
-
-  - name: Get plexdrive service state
-    set_fact:
-      plexdrive_service_running: "{{ (services['plexdrive.service'] is defined) and (services['plexdrive.service']['state'] == \"running\") }}"
-    when: plexdrive_service.stat.exists
-
-  - name: Stop plexdrive service
-    systemd:
-      name: plexdrive
-      state: stopped
-    when: plexdrive_service.stat.exists and plexdrive_service_running
 
   - name: Check if 'cloudplow.service' exists
     stat:
@@ -208,12 +192,6 @@
     vars:
       message: "Backup archive created (file size: {{backup_size}})."
     ignore_errors: yes
-
-  - name: "Start plexdrive service"
-    systemd:
-      name: plexdrive
-      state: started
-    when: plexdrive_service.stat.exists and plexdrive_service_running
 
   - name: "Wait for 5 seconds before starting containers"
     wait_for:
@@ -343,11 +321,6 @@
       msg: "Backup Completed Successfully."
 
   rescue:
-    - name: "Start plexdrive service"
-      systemd:
-        name: plexdrive
-        state: started
-      when: plexdrive_service.stat.exists and plexdrive_service_running
 
     - name: "Wait for 5 seconds before starting containers"
       wait_for:

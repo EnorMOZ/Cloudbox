@@ -1,0 +1,69 @@
+#########################################################################
+# Title:         Cloudbox: PlexPy Role                                  #
+# Author(s):     L3uddz, Desimaniac                                     #
+# URL:           https://github.com/Cloudbox/Cloudbox                   #
+# Docker Image:  tautulli/tautulli                                      #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.rocks          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Setting CloudFlare DNS Record"
+  include_role:
+    name: cloudflare
+  vars:
+    subdomain: tautulli
+
+- name: "Get {{user}} uid"
+  shell: "id -u {{user}}"
+  register: uid
+
+- name: "Get {{user}} gid"
+  shell: "id -g {{user}}"
+  register: gid
+
+- name: Stop and remove any existing container
+  docker_container:
+    name: "{{role_name}}"
+    state: absent
+
+- name: Wait for Plex Logs folder to be created by Plex
+  wait_for:
+    path: "{{mnt.docker_data}}/plex/Library/Application Support/Plex Media Server/Logs"
+    state: present
+
+- name: Create tautulli directories
+  file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}}"
+  with_items:
+    - "{{role_dir}}"
+
+- name: Setup default tautulli docker volume to be merged
+  set_fact:
+    tautulli_volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "{{role_dir}}:/config"
+      - "{{mnt.docker_data}}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro"
+
+- name: Create and start container
+  docker_container:
+    name: "{{role_name}}"
+    image: tautulli/tautulli
+    pull: yes
+    published_ports:
+      - "127.0.0.1:8181:8181"
+    env:
+      ADVANCED_GIT_BRANCH: nightly
+      PUID: "{{uid.stdout}}"
+      PGID: "{{gid.stdout}}"
+      VIRTUAL_HOST: "tautulli.{{domain}}"
+      VIRTUAL_PORT: 8181
+      LETSENCRYPT_HOST: "tautulli.{{domain}}"
+      LETSENCRYPT_EMAIL: "{{email}}"
+    volumes: "{{tautulli_volumes + docker_volumes.tautulli|default([])}}"
+    restart_policy: always
+    networks:
+      - name: cloudbox
+        aliases:
+          - "{{role_name}}"
+    state: started
