@@ -1,0 +1,49 @@
+#########################################################################
+# Title:         Cloudbox: Pre-Tasks - Variables Task                   #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Set 'run_nzbs'"
+  set_fact:
+    run_nzbs: "{{ true if (
+        (nzbs_downloads_path is defined|default(false,true))
+        or
+        (old_nzbget_downloads_path is defined|default(false,true))
+      )
+      else false }}"
+
+- name: "Set 'run_torrents'"
+  set_fact:
+    run_torrents: "{{ true if (
+        (torrents_downloads_path is defined|default(false,true))
+        or
+        (old_rutorrent_downloads_path is defined|default(false,true))
+      )
+      else false }}"
+
+- name: "Set 'run_kernel'"
+  set_fact:
+    run_kernel: "{{ false if (
+        not (
+        (kernel is undefined)
+        or
+        (kernel is none)
+        or
+        (kernel | trim == '')
+        or
+        (kernel.version is undefined)
+        )
+        and (
+        (kernel.version is none)
+        or
+        (kernel.version | trim == '')
+        or
+        ('disable' in kernel.version)
+        )
+      )
+      else true }}"

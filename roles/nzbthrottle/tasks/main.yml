@@ -1,7 +1,8 @@
 #########################################################################
-# Title:         Cloudbox: Plex Patrol Role                             #
-# Author(s):     l3uddz                                                 #
-# URL:           https://github.com/cloudbox/cloudbox                   #
+# Title:            Cloudbox: NZB Throttle                              #
+# Author(s):        desimaniac                                          #
+# URL:              https://github.com/cloudbox/cloudbox                #
+# Docker Image(s):  daghaian/nzbthrottle                                #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
@@ -10,49 +11,48 @@
 ---
 - name: Stop and remove any existing container
   docker_container:
-    name: plex_patrol
+    name: nzbthrottle
     state: absent
 
-- name: Create plex_patrol directories
-  file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}}"
+- name: Create nzbthrottle directories
+  file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}} recurse=yes"
   with_items:
-    - /opt/plex_patrol
+    - /opt/nzbthrottle
 
 - name: Check config exists
   stat:
-    path: "/opt/plex_patrol/settings.ini"
-  register: plex_patrol_config
+    path: "/opt/nzbthrottle/config.json"
+  register: nzbthrottle_config
 
 - name: Import Plex Auth Token role
   import_role:
     name: plex_auth_token
-  when: plex_account_enabled and not plex_patrol_config.stat.exists
+  when: (not nzbthrottle_config.stat.exists) and (plex_account_enabled)
 
 - name: Import default config
   template:
-    src: settings.ini.js2
-    dest: /opt/plex_patrol/settings.ini
+    src: "config.json.js2"
+    dest: "/opt/nzbthrottle/config.json"
     owner: "{{user}}"
     group: "{{user}}"
     mode: 0775
     force: yes
-  when: not plex_patrol_config.stat.exists
+  when: (not nzbthrottle_config.stat.exists)
 
 - name: Create and start container
   docker_container:
-    name: plex_patrol
-    image: "cloudb0x/plex_patrol:latest"
+    name: nzbthrottle
+    image: "daghaian/nzbthrottle"
     pull: yes
-    user: "{{uid}}:{{gid}}"
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
-      - "/opt/plex_patrol:/config"
+      - "/opt/nzbthrottle/config.json:/nzbthrottle/config.json:ro"
     labels:
       "com.github.cloudbox.cloudbox_managed": "true"
     networks:
       - name: cloudbox
         aliases:
-          - plex_patrol
+          - nzbthrottle
     purge_networks: yes
     restart_policy: unless-stopped
     state: started
