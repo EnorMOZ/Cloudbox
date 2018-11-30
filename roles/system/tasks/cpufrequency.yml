@@ -1,6 +1,6 @@
 #########################################################################
-# Title:         Cloudbox: CPU Power Task                               #
-# Author(s):     L3uddz, EnorMOZ                                        #
+# Title:         System: CPU Frequency Task                             #
+# Author(s):     l3uddz, EnorMOZ, desimaniac                            #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
@@ -54,22 +54,3 @@
 - name: Disable ondemand CPU frequency scaling daemon
   shell: "update-rc.d ondemand disable"
   when: ansible_distribution_version == "16.04"
-
-- name: Check service exists
-  stat:
-    path: "/etc/systemd/system/cpupower.service"
-  register: cpupower_service
-
-- name: Import cpupower.service
-  template:
-    src: cpupower.service
-    dest: /etc/systemd/system/cpupower.service
-    force: yes
-  when: cpupower_service.stat.exists == False
-
-- name: Start cpupower service
-  systemd:
-    state: started
-    name: cpupower
-    daemon_reload: yes
-    enabled: yes

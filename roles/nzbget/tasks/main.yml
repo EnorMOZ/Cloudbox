@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Cloudbox: NZBGet Role                                  #
-# Author(s):     L3uddz, Desimaniac                                     #
+# Author(s):     l3uddz, desimaniac                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # Docker Image:  hotio/suitarr                                          #
 # --                                                                    #
@@ -91,7 +91,8 @@
     published_ports:
       - "127.0.0.1:6789:6789"
     env:
-      VERSION: "unstable"
+      VERSION: "{{suitarr.version}}"
+      FALLBACK: "yes"
       BACKUP: "no"
       PUID: "{{uid}}"
       PGID: "{{gid}}"
@@ -109,7 +110,7 @@
         aliases:
           - nzbget
     purge_networks: yes
-    restart_policy: always
+    restart_policy: unless-stopped
     state: started
 
 - name: Scripts Task

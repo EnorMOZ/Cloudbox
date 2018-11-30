@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Cloudbox: Shell Role - Zsh Task                        #
-# Author(s):     Desimaniac, L3uddz                                     #
+# Author(s):     desimaniac, l3uddz                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
@@ -43,6 +43,19 @@
     line: "export EDITOR=nano"
     state: present
 
+- name: Set default editor to nano in .zshrc
+  lineinfile:
+    dest: "/home/{{user}}/.zshrc"
+    line: "DISABLE_UPDATE_PROMPT=true"
+    state: present
+
+# Allows commmands to run with the un-expanded glob
+- name: Set option 'nomatch'
+  lineinfile:
+    dest: "/home/{{user}}/.zshrc"
+    line: "unsetopt nomatch"
+    state: present
+
 - name: "Check if /bin/zsh exists"
   stat:
     path: /bin/zsh
@@ -61,6 +74,9 @@
     shell: /bin/zsh
   register: default_shell
 
-- debug:
-    msg: "zsh is now set as your default shell. You will need to re-login for changes to take effect."
+- name: Z Shell is now set as your default shell
+  debug:
+    msg:
+      - "Z Shell is now set as your default shell."
+      - "You will need to re-login for changes to take effect."
   when: default_shell is changed

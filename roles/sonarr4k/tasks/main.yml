@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Cloudbox: Sonarr4K Role                                #
-# Author(s):     Desimaniac                                             #
+# Author(s):     desimaniac                                             #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # Docker Image:  hotio/suitarr                                          #
 # --                                                                    #
@@ -74,7 +74,8 @@
     published_ports:
       - "127.0.0.1:8990:8989"
     env:
-      VERSION: "unstable"
+      VERSION: "{{suitarr.version}}"
+      FALLBACK: "yes"
       BACKUP: "no"
       PUID: "{{uid}}"
       PGID: "{{gid}}"
@@ -92,5 +93,5 @@
         aliases:
           - sonarr4k
     purge_networks: yes
-    restart_policy: always
+    restart_policy: unless-stopped
     state: started

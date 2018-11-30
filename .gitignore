@@ -1,10 +1,19 @@
-#Cloudbox Related
+# Cloudbox
 /ansible.cfg
 /accounts.yml
 /settings.yml
 /adv_settings.yml
 /rclone.conf
-/backup_excludes.txt
+/backup_config.yml
+/backup_excludes_list.txt
+/*.log
+
+# Ansible
 /backup.lock
 /cloudbox.retry
-/*.log
+
+# MacOS
+.DS_Store
+
+# Python
+*.pyc

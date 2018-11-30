@@ -1,0 +1,16 @@
+---
+local:
+  enable: yes
+  destination: /home/{{user}}/Backups/Cloudbox
+rclone:
+  enable: yes
+  destination: google:/Backups/Cloudbox
+rsync:
+  enable: no
+  dest: rsync://somehost.com/Backups/Cloudbox
+cron:
+  cron_time: weekly
+  cron_state: absent
+vault_service:
+  user:
+  pass:

@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Cloudbox: Common Role                                  #
-# Author(s):     L3uddz, Desimaniac                                     #
+# Author(s):     l3uddz, desimaniac                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
@@ -47,7 +47,6 @@
     - curl
     - httpie
     - sqlite3
-    - vnstat
     - tree
     - lsof
     - man-db
@@ -111,6 +110,7 @@
     - yq
     - lxml
     - apprise
+    - jmespath
   ignore_errors: yes
 
 - name: Install z
@@ -153,4 +153,10 @@
   import_role:
     name: subliminal
   tags: subliminal
+  ignore_errors: yes
+
+- name: Cloudflare Cache Purge
+  import_tasks: "cloudflare_cache_purge.yml"
+  when: cloudflare_enabled
+  tags: cloudflare-cache-purge
   ignore_errors: yes

@@ -1,0 +1,45 @@
+#########################################################################
+# Title:         System: apt Task                                       #
+# Author(s):     l3uddz, desimaniac                                     #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Fix any potential dpkg issues
+  shell: dpkg --configure -a
+
+- name: Fix any potential apt issues
+  shell: apt-get --fix-broken --yes install
+
+- name: Install required packages
+  apt: "name={{item}} state=latest"
+  with_items:
+    - apt-utils
+    - byobu
+
+- name: apt update
+  apt:
+    update_cache: yes
+
+# https://serverfault.com/a/839563
+# https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
+- name: apt upgrade
+  shell: DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+  when: not continuous_integration
+
+# https://serverfault.com/a/839563
+# https://raymii.org/s/tutorials/Silent-automatic-apt-get-upgrade.html
+- name: apt dist-upgrade
+  shell: DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get dist-upgrade --quiet --yes --allow-unauthenticated -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
+  when: not continuous_integration
+
+- name: Remove useless packages from the cache
+  apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes

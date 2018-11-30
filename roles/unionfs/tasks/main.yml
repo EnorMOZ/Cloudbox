@@ -1,6 +1,6 @@
 #########################################################################
 # Title:         Cloudbox: UnionFS Role                                 #
-# Author(s):     L3uddz, Desimaniac                                     #
+# Author(s):     l3uddz, desimaniac                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
@@ -25,6 +25,10 @@
 - name: Stop existing unionfs service
   systemd: state=stopped name=unionfs
   when: unionfs_service.stat.exists and unionfs_service_running
+
+- name: "Force unmount /mnt/unionfs"
+  shell: "/bin/umount -f /mnt/unionfs 2>/dev/null || :"
+  ignore_errors: yes
 
 - name: Create unionfs directories
   file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}} recurse=yes"
