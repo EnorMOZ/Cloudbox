@@ -9,13 +9,15 @@
     - { role: sanity_check }
     - { role: settings, tags: ['always', 'settings'] }
     - { role: pre_tasks }
-    - { role: kernel, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'kernel'], when: ['run_kernel'] }
-    - { role: pre_install, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
     - { role: backup, tags: ['backup'] }
     - { role: restore, tags: ['restore'] }
+    - { role: user, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'user'] }
+    - { role: shell, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'], 'shell' }
+    - { role: kernel, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'kernel'] }
+    - { role: pre_install, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
     - { role: system, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'system'] }
-    - { role: motd, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'motd'] }
     - { role: common, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'common'] }
+    - { role: motd, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'motd'] }
     - { role: docker, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'docker'] }
     - { role: plexdrive, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
     - { role: unionfs, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
@@ -23,7 +25,8 @@
     - { role: scripts, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: nginx-proxy, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'nginx-proxy'] }
     - { role: plex, tags: ['cloudbox', 'mediabox', 'plex'] }
-    - { role: plexpy, tags: ['cloudbox', 'mediabox', 'plexpy'] }
+    - { role: tautulli, tags: ['cloudbox', 'mediabox', 'tautulli'] }
+    #- { role: plexpy, tags: ['cloudbox', 'mediabox', 'plexpy'] }
     - { role: ombi, tags: ['cloudbox', 'mediabox', 'ombi'] }
     - { role: plex_autoscan, tags: ['cloudbox', 'mediabox', 'plex_autoscan'] }
     - { role: portainer, tags: ['cloudbox', 'feederbox', 'portainer'] }
@@ -44,6 +47,7 @@
     - { role: plexrequests, tags: ['plexrequests'] }
     - { role: resilio-sync, tags: ['resilio-sync'] }
     - { role: nextcloud, tags: ['nextcloud'] }
+    - { role: mariadb, tags: ['mariadb'] }
     - { role: emby, tags: ['emby'] }
     - { role: nzbhydra, tags: ['nzbhydra'] }
     - { role: traktarr, tags: ['traktarr'] }
@@ -64,3 +68,4 @@
     - { role: nginx, tags: ['nginx'] }
     - { role: organizrv1, tags: ['organizrv1'] }
     - { role: nzbthrottle, tags: ['nzbthrottle'] }
+    - { role: drive_strm, tags: ['drive_strm', 'drive_strm_rebuild'] }
