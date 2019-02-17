@@ -1,0 +1,14 @@
+#########################################################################
+# Title:         UnionFS: Basic Tasks                                   #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: Create unionfs directories
+  file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}} recurse=yes"
+  with_items:
+    - /mnt/unionfs

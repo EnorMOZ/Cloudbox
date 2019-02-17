@@ -2,7 +2,7 @@
 # Title:         Cloudbox: Plex Role                                    #
 # Author(s):     l3uddz, desimaniac                                     #
 # URL:           https://github.com/cloudbox/cloudbox                   #
-# Docker Image:  plexinc/pms-docker                                     #
+# Docker Image:  cloudb0x/plex                                          #
 # --                                                                    #
 #         Part of the Cloudbox project: https://cloudbox.works          #
 #########################################################################
@@ -22,6 +22,7 @@
     - "/opt/plex/Library"
     - "/opt/plex/Library/Application Support"
     - "/opt/plex/Library/Application Support/Plex Media Server"
+    - "/opt/plex/Library/Application Support/Plex Media Server/Plug-ins"
     - "/opt/plex/Library/Logs"
     - "/opt/plex/Library/Logs/Plex Media Server"
     - "{{plex.transcodes}}/1"
@@ -34,7 +35,7 @@
 
 - name: "Pull Plex Docker image"
   docker_image:
-    name: "plexinc/pms-docker:{{plex.tag}}"
+    name: "cloudb0x/plex:{{plex.tag}}"
 
 - name: "Check if '/dev/dri' exists"
   stat:
@@ -119,7 +120,7 @@
 - name: "Create and start container"
   docker_container:
     name: plex
-    image: "plexinc/pms-docker:{{plex.tag}}"
+    image: "cloudb0x/plex:{{plex.tag}}"
     pull: yes
     published_ports:
       - "{{ (( plex.open_port | default(false,true)) | ternary('', '127.0.0.1:')) + '32400:32400/tcp' }}"
@@ -144,6 +145,9 @@
       LETSENCRYPT_HOST: "plex.{{domain}}"
       LETSENCRYPT_EMAIL: "{{email}}"
       HTTPS_METHOD: noredirect
+      HEALTHCHECK_MOUNT: /mnt/unionfs
+      NVIDIA_DRIVER_CAPABILITIES: "{{ 'compute,video,utility' if gpu.nvidia | default(false) else omit }}"
+      NVIDIA_VISIBLE_DEVICES: "{{ 'all' if gpu.nvidia | default(false) else omit }}"
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "/opt/plex:/config"
@@ -153,7 +157,7 @@
       - "/mnt/unionfs/Media:/data"
       - "/mnt:/mnt"
       - "/tmp:/tmp"
-    devices: "{{ '/dev/dri:/dev/dri' if dev_dri.stat.exists == True | default(false) else omit }}"
+    devices: "{{ '/dev/dri:/dev/dri' if (gpu.intel and dev_dri.stat.exists) | default(false) else omit }}"
     etc_hosts: "{{plex_default_hosts | combine(plex_custom_hosts|default([])) }}"
     labels:
       "com.github.cloudbox.cloudbox_managed": "true"
@@ -165,11 +169,11 @@
     restart_policy: unless-stopped
     state: started
 
-# we need this here because sometimes after a restore, docker will set this transcodes folder to root, dont ask why, but it does...
-- name: "Wait 5 seconds, then ensure {{plex.transcodes}} has the correct permissions"
+- name: "Wait 15 seconds"
   wait_for:
-    timeout: 5
+    timeout: 15
 
+# we need this here because sometimes after a restore, docker will set this transcodes folder to root, dont ask why, but it does...
 - name: "Ensure transcodes folder has the correct permissions"
   file:
     path: "{{plex.transcodes}}"
@@ -178,17 +182,13 @@
     mode: 0775
     recurse: yes
 
-- name: "Wait for 'Plug-ins' folder to be created by Plex"
-  wait_for:
-    path: "/opt/plex/Library/Application Support/Plex Media Server/Plug-ins"
-    state: present
-
 - name: "Install WebTools"
   import_role:
     name: webtools
-  tags:
-    - webtools
-    - reinstall-webtools
+
+- name: "Install Sub-Zero"
+  import_role:
+    name: sub-zero
 
 - name: "Forced Automatic Quality Settings"
   import_tasks: "forced_quality_settings.yml"

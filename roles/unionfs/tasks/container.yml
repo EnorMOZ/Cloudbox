@@ -1,0 +1,21 @@
+#########################################################################
+# Title:         UnionFS: Container Tasks                               #
+# Author(s):     desimaniac                                             #
+# URL:           https://github.com/cloudbox/cloudbox                   #
+# --                                                                    #
+#         Part of the Cloudbox project: https://cloudbox.works          #
+#########################################################################
+#                   GNU General Public License v3.0                     #
+#########################################################################
+---
+- name: "Restart docker service"
+  systemd: name=docker state=restarted
+
+- name: Wait for 10 seconds before commencing
+  wait_for:
+    timeout: 10
+
+- name: "Start all previously running Docker containers"
+  shell: 'docker start {{cloudbox_managed_containers.stdout}}'
+  ignore_errors: yes
+  when: (cloudbox_managed_containers.stdout | trim != '')

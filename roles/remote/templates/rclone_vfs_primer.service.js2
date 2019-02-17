@@ -1,0 +1,23 @@
+# /etc/systemd/system/rclone_vfs_primer.service
+
+[Unit]
+Description=Rclone VFS Primer
+Requires=rclone_vfs.service
+After=rclone_vfs.service
+
+[Service]
+User={{user}}
+Group={{user}}
+Type=oneshot
+ExecStartPre=/bin/sleep 10
+ExecStart=/usr/bin/rclone \
+  --config /home/{{user}}/.config/rclone/rclone.conf \
+  --timeout=1h \
+  -vvv \
+  --rc-addr=localhost:5572 \
+  rc vfs/refresh dir=Media recursive=true
+RemainAfterExit=yes
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

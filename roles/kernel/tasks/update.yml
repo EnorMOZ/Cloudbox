@@ -20,25 +20,21 @@
 
   - name: Fix apt
     shell: apt-get --fix-broken --yes install
-    when: r.changed
+    when: (r.changed)
 
-  - name: Success message
+  - name: Set 'reboot_is_necessary' variable
+    set_fact:
+      reboot_is_necessary: true
+    when: (r.changed)
+
+  - name: Kernel was updated
     debug:
-      msg: "Kernel updated. System will now reboot ..."
-    when: r.changed
+      msg: "Kernel was updated."
+    when: (r.changed)
 
-  - name: Reboot
-    shell: reboot
-    when: r.changed
-
-  - name: Reboot message
-    debug:
-      msg: "You will need to restart for kernel update to take effect."
-    when: r.changed
-
-  - name: No success message
+  - name: Kernel was not updated
     debug:
       msg: "Kernel was not updated."
-    when: not r.changed
+    when: (not r.changed)
 
   when: (ansible_distribution == 'Ubuntu') and (ansible_distribution_version is version('16.04', '==')) and (ansible_kernel is version('4.10', '<'))

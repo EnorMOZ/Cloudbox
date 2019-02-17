@@ -11,17 +11,18 @@
     - { role: pre_tasks }
     - { role: backup, tags: ['backup'] }
     - { role: restore, tags: ['restore'] }
-    - { role: user, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'user'] }
-    - { role: shell, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'], 'shell' }
-    - { role: kernel, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'kernel'] }
-    - { role: pre_install, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
+    - { role: kernel, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'preinstall', 'kernel'] }
+    - { role: user, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'preinstall', 'user'] }
+    - { role: shell, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'preinstall', 'shell'] }
     - { role: system, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'system'] }
     - { role: common, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'common'] }
+    - { role: aliases, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'aliases'] }
     - { role: motd, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'motd'] }
     - { role: docker, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'docker'] }
-    - { role: plexdrive, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
-    - { role: unionfs, tags: ['core', 'cloudbox', 'mediabox', 'feederbox'] }
+    - { role: nvidia, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'nvidia'] }
     - { role: rclone, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'rclone'] }
+    - { role: remote, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'] }
+    - { role: unionfs, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'mounts', 'mounts_override'] }
     - { role: scripts, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'scripts'] }
     - { role: nginx-proxy, tags: ['core', 'cloudbox', 'mediabox', 'feederbox', 'nginx-proxy'] }
     - { role: plex, tags: ['cloudbox', 'mediabox', 'plex'] }
@@ -43,6 +44,8 @@
     - { role: feeder-mount, tags: ['feeder-mount'] }
     - { role: feeder-dismount, tags: ['feeder-dismount'] }
     - { role: plex_auth_token, tags: ['plex_auth_token'] }
+    - { role: webtools, tags: ['webtools', 'reinstall-webtools'] }
+    - { role: sub-zero, tags: ['sub-zero', 'reinstall-sub-zero'] }
     - { role: watchtower, tags: ['watchtower'] }
     - { role: plexrequests, tags: ['plexrequests'] }
     - { role: resilio-sync, tags: ['resilio-sync'] }
@@ -60,7 +63,6 @@
     - { role: znc, tags: ['znc'] }
     - { role: quassel, tags: ['quassel'] }
     - { role: plex_patrol, tags: ['plex_patrol'] }
-    - { role: telly, tags: ['telly'] }
     - { role: nowshowing, tags: ['nowshowing'] }
     - { role: bazarr, tags: ['bazarr'] }
     - { role: python-plexlibrary, tags: ['python-plexlibrary'] }

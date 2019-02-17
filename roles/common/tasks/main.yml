@@ -15,12 +15,19 @@
     - /home/{{user}}/logs
     - /home/{{user}}/.config
     - /home/{{user}}/.config/pip
+    - /opt
     - /mnt/local
+
+- name: Btrfs Task
+  import_tasks: "btrfs.yml"
+
+- name: Create '/mnt/local' sub-directories
+  file: "path={{item}} state=directory mode=0775 owner={{user}} group={{user}}"
+  with_items:
     - /mnt/local/Media
     - /mnt/local/Media/Movies
     - /mnt/local/Media/Music
     - /mnt/local/Media/TV
-    - /opt
 
 - name: Add multiverse repositories
   apt_repository:
@@ -41,39 +48,44 @@
   when: apt_multiverse_repositories.changed
   ignore_errors: yes
 
+- name: Fetch pci info
+  shell: "lspci -v -s $(lspci | grep -E '.*VGA.*Intel.*' | cut -d' ' -f 1) 2>/dev/null || :"
+  register: lscpi_resp
+
 - name: Install common packages
-  apt: "name={{item}} state=present"
+  apt: "name={{item.package}} state=present"
   with_items:
-    - nano
-    - zip
-    - unzip
-    - p7zip
-    - curl
-    - httpie
-    - sqlite3
-    - tree
-    - lsof
-    - man-db
-    - ksmtuned
-    - git
-    - pwgen
-    - rsync
-    - logrotate
-    - htop
-    - iotop
-    - nload
-    - fail2ban
-    - ufw
-    - ncdu
-    - mc
-    - speedtest-cli
-    - dnsutils
-    - glances
-    - screen
-    - tmux
-    - apache2-utils
-    - jq
-    - lib32z1
+    - { package: "nano" }
+    - { package: "zip" }
+    - { package: "unzip" }
+    - { package: "p7zip" }
+    - { package: "curl" }
+    - { package: "httpie" }
+    - { package: "sqlite3" }
+    - { package: "tree" }
+    - { package: "lsof" }
+    - { package: "man-db" }
+    - { package: "ksmtuned" }
+    - { package: "git" }
+    - { package: "pwgen" }
+    - { package: "rsync" }
+    - { package: "logrotate" }
+    - { package: "htop" }
+    - { package: "iotop" }
+    - { package: "nload" }
+    - { package: "fail2ban" }
+    - { package: "ufw" }
+    - { package: "ncdu" }
+    - { package: "mc" }
+    - { package: "speedtest-cli" }
+    - { package: "dnsutils" }
+    - { package: "screen" }
+    - { package: "tmux" }
+    - { package: "apache2-utils" }
+    - { package: "jq" }
+    - { package: "lib32z1" }
+    - { package: "intel-gpu-tools", skip: "{{ 'i915' not in lscpi_resp.stdout }}" }
+  when: not item.skip | default(False) | bool
   ignore_errors: yes
 
 - name: Install unrar
@@ -100,11 +112,11 @@
     dest: "/home/{{user}}/.config/pip/pip.conf"
     owner: "{{user}}"
     group: "{{user}}"
-    mode: 775
+    mode: 0775
     force: yes
 
 - name: Install common pip modules
-  pip: "name={{item}} state=latest"
+  pip: "name={{item}} state=present"
   with_items:
     - passlib
     - certbot
@@ -115,6 +127,23 @@
     - lxml
     - apprise
     - jmespath
+  ignore_errors: yes
+
+- name: Uninstall apt glances
+  apt: "name={{item}} state=absent"
+  with_items:
+    - glances
+  ignore_errors: yes
+  tags: glances
+
+- name: Install pip glances
+  shell: pip install glances[action,browser,cloud,cpuinfo,docker,folders,gpu,graph,ip,raid,snmp,web]
+  tags: glances
+
+- name: Install yyq
+  import_role:
+    name: yyq
+  tags: yyq
   ignore_errors: yes
 
 - name: Install z
@@ -159,7 +188,7 @@
   tags: subliminal
   ignore_errors: yes
 
-- name: Cloudflare Cache Purge
+- name: Cloudflare Cache Purge Task
   import_tasks: "cloudflare_cache_purge.yml"
   when: cloudflare_enabled
   tags: cloudflare-cache-purge

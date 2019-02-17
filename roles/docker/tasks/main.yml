@@ -53,7 +53,8 @@
 
 - name: Add official repository
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} edge"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ansible_distribution|lower}} {{ ansible_distribution_release }} edge"
+    filename: docker
   register: apt_docker_repositories
 
 - name: Update APT packages list
@@ -68,7 +69,7 @@
 
 - name: Install docker-ce
   apt:
-    name: docker-ce=18.05.0~ce~3-0~ubuntu
+    name: "docker-ce=*18.09.2~3-0~{{ansible_distribution|lower}}-{{ansible_distribution_release|lower}}"
     state: present
     update_cache: yes
     force: yes
@@ -77,6 +78,43 @@
   dpkg_selections:
     name: docker-ce
     selection: hold
+
+- name: Get docker-ce version
+  shell: "/usr/bin/dockerd-ce --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
+  register: docker_ce_version
+  ignore_errors: yes
+
+- name: Display docker-ce version
+  debug:
+    msg: "Docker CE version {{docker_ce_version.stdout}} installed."
+  when: docker_ce_version is defined
+
+- name: Release docker-ce-cli from hold
+  dpkg_selections:
+    name: docker-ce-cli
+    selection: install
+
+- name: Install docker-ce-cli
+  apt:
+    name: "docker-ce-cli=*18.09.2~3-0~{{ansible_distribution|lower}}-{{ansible_distribution_release|lower}}"
+    state: present
+    update_cache: yes
+    force: yes
+
+- name: Put docker-ce-cli into hold
+  dpkg_selections:
+    name: docker-ce-cli
+    selection: hold
+
+- name: Get docker-ce-cli version
+  shell: "/usr/bin/docker --version | head -n 1 | awk '{ print $3 }' | sed 's/,$//'"
+  register: docker_ce_cli_version
+  ignore_errors: yes
+
+- name: Display docker-ce-cli version
+  debug:
+    msg: "Docker CE CLI version {{docker_ce_cli_version.stdout}} installed."
+  when: docker_ce_cli_version is defined
 
 - name: Uninstall docker-py pip module
   pip:
@@ -91,20 +129,14 @@
   ignore_errors: yes
 
 - name: Import daemon.json
-  copy: "src=daemon.json dest=/etc/docker/daemon.json force=yes mode=0775"
-
-- name: Create override directory
-  file: "path=/etc/systemd/system/docker.service.d state=directory mode=0775"
-
-- name: Import override file
-  copy: "src=override.conf dest=/etc/systemd/system/docker.service.d/override.conf force=yes mode=0775"
+  copy: "src=daemon.json dest=/etc/docker/daemon.json force=no mode=0775"
 
 - name: Start docker
-  systemd: state=started name=docker enabled=yes
+  systemd: name=docker state=started enabled=yes daemon_reload=yes
 
-- name: Wait for 30 seconds before commencing
+- name: Wait for 15 seconds before commencing
   wait_for:
-    timeout: 30
+    timeout: 15
 
 - name: "Stop all Docker containers"
   shell: "docker stop $(docker ps -aq)"
